@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:executor_lib/executor_lib.dart';
+
 import 'contour_options.dart';
 import 'decode.dart';
 import 'dem_provider.dart';
@@ -13,24 +15,44 @@ import 'tile_id.dart';
 Future<Uint8List> terrariumToContourLines(
     {required TileId tile,
     required DemProvider demProvider,
-    required ContourOptions options}) async {
-  var virtualTile =
-      await _retrieveDemWithNeighbours(tile, options, demProvider);
-  virtualTile = virtualTile
-      ?.scale(options.multiplier)
-      .materialize(max(options.buffer, 1));
-  return elevationTileToContourLines(tile: virtualTile, options: options);
+    required ContourOptions options,
+    Executor? executor}) async {
+  executor = executor ?? DirectExecutor();
+  var virtualTile = await _retrieveDemWithNeighbours(tile, options, demProvider,
+      executor: executor);
+  return elevationTileToContourLines(
+      tile: virtualTile, options: options, executor: executor);
 }
 
 Future<Uint8List> elevationTileToContourLines(
-    {required ElevationTile? tile, required ContourOptions options}) async {
+    {required ElevationTile? tile,
+    required ContourOptions options,
+    Executor? executor}) async {
   if (tile == null) {
     return isolinesToTile({}, options);
   }
+  executor = executor ?? DirectExecutor();
+  tile = tile.scale(options.multiplier).materialize(max(options.buffer, 1));
+  return await executor.submit(Job(
+      'isolinesToTile', _computeIsolinesToTile, _IsolinesInput(tile, options),
+      deduplicationKey: null));
+}
+
+Uint8List _computeIsolinesToTile(_IsolinesInput input) {
+  final tile = input.tile;
+  final options = input.options;
   final algorithm = MarchingSquares(
       tile: tile, extent: options.extent, buffer: options.buffer);
+
   final isolines = algorithm.generateIsolines(options.minorLevel);
   return isolinesToTile(isolines, options);
+}
+
+class _IsolinesInput {
+  final ElevationTile tile;
+  final ContourOptions options;
+
+  _IsolinesInput(this.tile, this.options);
 }
 
 Future<ElevationTile?> _retrieveDem(
@@ -42,8 +64,9 @@ Future<ElevationTile?> _retrieveDem(
 }
 
 Future<ElevationTile?> _retrieveDemWithNeighbours(
-    TileId tile, ContourOptions options, DemProvider provider) async {
-  final tileProvider = _FutureDemProvider(provider);
+    TileId tile, ContourOptions options, DemProvider provider,
+    {required Executor executor}) async {
+  final tileProvider = _FutureDemProvider(provider, executor);
   final Future<ElevationTile?> center =
       _retrieveDem(tile, options, tileProvider);
   final Future<ElevationTile?> leftCenter =
@@ -81,10 +104,11 @@ Future<ElevationTile?> _retrieveDemWithNeighbours(
 }
 
 class _FutureDemProvider {
+  final Executor executor;
   final DemProvider provider;
   final Map<TileId, Future<ElevationTile>> fetchFutures = {};
 
-  _FutureDemProvider(this.provider);
+  _FutureDemProvider(this.provider, this.executor);
 
   Future<ElevationTile> fetch(TileId tileId, ContourOptions options) {
     var future = fetchFutures[tileId];
@@ -101,10 +125,24 @@ class _FutureDemProvider {
       ContourOptions options) async {
     try {
       final dem = await provider.provide(tile: tileId);
-      final image = decodePng(dem);
-      completer.complete(DemTile.fromImage(image, options.encoding));
+      final tile = await executor.submit(Job(
+          'decodePng', _decodePng, _DecodeArguments(dem, options.encoding),
+          deduplicationKey: null));
+      completer.complete(tile);
     } catch (e, stack) {
       completer.completeError(e, stack);
     }
   }
+}
+
+class _DecodeArguments {
+  final Uint8List bytes;
+  final DemEncoding encoding;
+
+  _DecodeArguments(this.bytes, this.encoding);
+}
+
+ElevationTile _decodePng(_DecodeArguments arguments) {
+  final image = decodePng(arguments.bytes);
+  return DemTile.fromImage(image, arguments.encoding).materialize(0);
 }

@@ -13,15 +13,5 @@ void main() {
           options: ContourOptions());
       await writeOutput('contour_tile.pbf', buffer);
     });
-
-    test('provides contiguous isolines', () async {
-      final tile = TileId(z: 12, x: 646, y: 1401);
-      final buffer = await terrariumToContourLines(
-          tile: tile,
-          demProvider: TestDemProvider(),
-          options: ContourOptions(minorLevel: 20));
-      await writeOutput(
-          'contour_tile_${tile.z}_${tile.x}_${tile.y}.pbf', buffer);
-    });
   });
 }

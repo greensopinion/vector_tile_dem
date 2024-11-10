@@ -1,6 +1,6 @@
 name: vector_tile_dem
 description: Provides vector tiles with contour lines from a Digital Elevation Model (DEM)
-version: 0.0.1
+version: 0.0.2
 repository: https://github.com/greensopinion/vector_tile_dem
 
 environment:
@@ -11,6 +11,7 @@ dependencies:
   vector_tile: ^2.0.0
   image: ^4.2.0
   fixnum: ^1.1.0
+  executor_lib: ^1.1.1
 
 
 dev_dependencies:

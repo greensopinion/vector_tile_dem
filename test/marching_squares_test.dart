@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:executor_lib/executor_lib.dart';
 import 'package:test/test.dart';
 import 'package:vector_tile_dem/src/tile.dart';
 import 'package:vector_tile_dem/vector_tile_dem.dart';
@@ -12,42 +13,23 @@ import 'test_data.dart';
 import 'test_output.dart';
 
 void main() {
+  final firstTile = TileId(z: 12, x: 646, y: 1401);
+  final secondTile = TileId(z: 12, x: 646, y: 1400);
+  final executor = IsolateExecutor();
+
+  tearDownAll(executor.dispose);
+
   test('complete real-world tile', () async {
-    await _processTerrariumTile(TileId(z: 12, x: 646, y: 1401));
+    await _processTerrariumTile(firstTile);
   });
   test('another complete real-world tile', () async {
-    final tile = await _processTerrariumTile(TileId(z: 12, x: 646, y: 1400));
-    expect(tile.layers.length, 1);
-    final layer = tile.layers.first;
-    expect(layer.name, 'contours');
-    expect(layer.features.length, 245);
-    var majorLevels = 0;
-    var minorLevels = 0;
-    var maxElevation = -10000;
-    var minElevation = 10000;
-    for (var feature in layer.features) {
-      expect(feature.hasPaths, true);
-      expect(feature.hasPoints, false);
-      expect(feature.type, TileFeatureType.linestring);
-      final elevation = feature.properties['ele'];
-      final level = feature.properties['level'];
-      expect(elevation, isA<int>());
-      expect(level, isA<int>());
-      expect(elevation % 20, 0, reason: 'elevation=$elevation');
-      expect(level, (elevation % 100 == 0) ? 1 : 0,
-          reason: 'elevation=$elevation');
-      if (level == 1) {
-        ++majorLevels;
-      } else {
-        ++minorLevels;
-      }
-      maxElevation = max(elevation, maxElevation);
-      minElevation = min(elevation, minElevation);
-    }
-    expect(majorLevels, 49);
-    expect(minorLevels, 196);
-    expect(maxElevation, 1060);
-    expect(minElevation, 0);
+    final tile = await _processTerrariumTile(secondTile);
+    _assertAnotherTile(tile);
+  });
+  test('another complete real-world tile with computation on an isolate',
+      () async {
+    final tile = await _processTerrariumTile(secondTile, executor: executor);
+    _assertAnotherTile(tile);
   });
 
   group('geometries', () {
@@ -212,6 +194,40 @@ void main() {
   });
 }
 
+void _assertAnotherTile(Tile tile) {
+  expect(tile.layers.length, 1);
+  final layer = tile.layers.first;
+  expect(layer.name, 'contours');
+  expect(layer.features.length, 245);
+  var majorLevels = 0;
+  var minorLevels = 0;
+  var maxElevation = -10000;
+  var minElevation = 10000;
+  for (var feature in layer.features) {
+    expect(feature.hasPaths, true);
+    expect(feature.hasPoints, false);
+    expect(feature.type, TileFeatureType.linestring);
+    final elevation = feature.properties['ele'];
+    final level = feature.properties['level'];
+    expect(elevation, isA<int>());
+    expect(level, isA<int>());
+    expect(elevation % 20, 0, reason: 'elevation=$elevation');
+    expect(level, (elevation % 100 == 0) ? 1 : 0,
+        reason: 'elevation=$elevation');
+    if (level == 1) {
+      ++majorLevels;
+    } else {
+      ++minorLevels;
+    }
+    maxElevation = max(elevation, maxElevation);
+    minElevation = min(elevation, minElevation);
+  }
+  expect(majorLevels, 49);
+  expect(minorLevels, 196);
+  expect(maxElevation, 1060);
+  expect(minElevation, 0);
+}
+
 void _assertTile(Tile tile, Function(TileLayer) contourLayerAsserts) {
   final contourLayer = _assertContourLayer(tile);
   contourLayerAsserts(contourLayer);
@@ -225,16 +241,20 @@ TileLayer _assertContourLayer(Tile tile) {
   return contourLayer;
 }
 
-Future<Tile> _processTerrariumTile(TileId tile) async {
+Future<Tile> _processTerrariumTile(TileId tile, {Executor? executor}) async {
   final buffer = await terrariumToContourLines(
       tile: tile,
       demProvider: TestDemProvider(),
-      options: ContourOptions(minorLevel: 20, majorLevel: 100));
+      options: ContourOptions(minorLevel: 20, majorLevel: 100),
+      executor: executor);
+  final suffix = executor == null
+      ? ''
+      : '-${executor.runtimeType.toString().replaceAll(RegExp(r'[^a-zA-Z]'), '')}';
   final vectorFile =
-      await writeOutput('tile-${tile.filenameSuffix}.pbf', buffer);
+      await writeOutput('tile-${tile.filenameSuffix}$suffix.pbf', buffer);
   print('created ${vectorFile.path}');
 
-  await _createImage(tile.filenameSuffix, buffer);
+  await _createImage('${tile.filenameSuffix}$suffix', buffer);
 
   return _readTile(buffer);
 }

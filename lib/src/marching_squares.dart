@@ -8,7 +8,8 @@ class MarchingSquares {
   final int buffer;
   late final double factor;
 
-  MarchingSquares({required this.tile, required this.extent, required this.buffer}) {
+  MarchingSquares(
+      {required this.tile, required this.extent, required this.buffer}) {
     factor = extent / tile.height;
   }
 
@@ -29,7 +30,10 @@ class MarchingSquares {
           final bottomRight = tile.elevation(x + 1, y);
           final topRight = tile.elevation(x + 1, y + 1);
           final topLeft = tile.elevation(x, y + 1);
-          if (bottomLeft.isNaN || bottomRight.isNaN || topRight.isNaN || topLeft.isNaN) {
+          if (bottomLeft.isNaN ||
+              bottomRight.isNaN ||
+              topRight.isNaN ||
+              topLeft.isNaN) {
             continue;
           }
 
@@ -39,8 +43,8 @@ class MarchingSquares {
           if (topRight > contourLevel) caseIndex |= 4;
           if (topLeft > contourLevel) caseIndex |= 8;
 
-          final contour =
-              _handleCase(x, y, bottomLeft, bottomRight, topRight, topLeft, contourLevel.toDouble(), caseIndex);
+          final contour = _handleCase(x, y, bottomLeft, bottomRight, topRight,
+              topLeft, contourLevel.toDouble(), caseIndex);
           if (contour.isNotEmpty) {
             var firstContour = _findContour(endToContour, contour.first);
             var lastContour = _findContour(endToContour, contour.last);
@@ -102,24 +106,34 @@ class MarchingSquares {
         }
       }
       if (endToContour.isNotEmpty || rings.isNotEmpty) {
-        isolinesByContourLevel[contourLevel] = endToContour.values.toSet().toList() + rings;
+        isolinesByContourLevel[contourLevel] =
+            endToContour.values.toSet().toList() + rings;
       }
     }
 
     return isolinesByContourLevel;
   }
 
-  List<Point<double>> _handleCase(int x, int y, double bottomLeft, double bottomRight, double topRight, double topLeft,
-      double contourLevel, int caseIndex) {
+  List<Point<double>> _handleCase(
+      int x,
+      int y,
+      double bottomLeft,
+      double bottomRight,
+      double topRight,
+      double topLeft,
+      double contourLevel,
+      int caseIndex) {
     final contour = <Point<double>>[];
 
-    Point<double> interpolate(Point<double> p1, Point<double> p2, double v1, double v2) {
+    Point<double> interpolate(
+        Point<double> p1, Point<double> p2, double v1, double v2) {
       Point<double> intersection;
       if (v1 == v2) {
         intersection = (p1 + p2) / 2.0;
       } else {
         double t = (contourLevel - v1) / (v2 - v1);
-        intersection = Point(p1.x + t * (p2.x - p1.x), p1.y + t * (p2.y - p1.y));
+        intersection =
+            Point(p1.x + t * (p2.x - p1.x), p1.y + t * (p2.y - p1.y));
       }
       return (intersection * factor).round();
     }
@@ -134,60 +148,88 @@ class MarchingSquares {
       case 15:
         break; // completely inside or outside
       case 1:
-        contour.add(interpolate(pointBottomLeft, pointBottomRight, bottomLeft, bottomRight));
-        contour.add(interpolate(pointBottomLeft, pointTopLeft, bottomLeft, topLeft));
+        contour.add(interpolate(
+            pointBottomLeft, pointBottomRight, bottomLeft, bottomRight));
+        contour.add(
+            interpolate(pointBottomLeft, pointTopLeft, bottomLeft, topLeft));
         break;
       case 2:
-        contour.add(interpolate(pointBottomLeft, pointBottomRight, bottomLeft, bottomRight));
-        contour.add(interpolate(pointBottomRight, pointTopRight, bottomRight, topRight));
+        contour.add(interpolate(
+            pointBottomLeft, pointBottomRight, bottomLeft, bottomRight));
+        contour.add(interpolate(
+            pointBottomRight, pointTopRight, bottomRight, topRight));
         break;
       case 3:
-        contour.add(interpolate(pointBottomLeft, pointTopLeft, bottomLeft, topLeft));
-        contour.add(interpolate(pointBottomRight, pointTopRight, bottomRight, topRight));
+        contour.add(
+            interpolate(pointBottomLeft, pointTopLeft, bottomLeft, topLeft));
+        contour.add(interpolate(
+            pointBottomRight, pointTopRight, bottomRight, topRight));
         break;
       case 4:
-        contour.add(interpolate(pointTopRight, pointBottomRight, topRight, bottomRight));
-        contour.add(interpolate(pointTopLeft, pointTopRight, topLeft, topRight));
+        contour.add(interpolate(
+            pointTopRight, pointBottomRight, topRight, bottomRight));
+        contour
+            .add(interpolate(pointTopLeft, pointTopRight, topLeft, topRight));
         break;
       case 5:
-        contour.add(interpolate(pointBottomLeft, pointBottomRight, bottomLeft, bottomRight));
-        contour.add(interpolate(pointTopRight, pointTopLeft, topRight, topLeft));
+        contour.add(interpolate(
+            pointBottomLeft, pointBottomRight, bottomLeft, bottomRight));
+        contour
+            .add(interpolate(pointTopRight, pointTopLeft, topRight, topLeft));
         break;
       case 6:
-        contour.add(interpolate(pointBottomLeft, pointBottomRight, bottomLeft, bottomRight));
-        contour.add(interpolate(pointTopLeft, pointTopRight, topLeft, topRight));
+        contour.add(interpolate(
+            pointBottomLeft, pointBottomRight, bottomLeft, bottomRight));
+        contour
+            .add(interpolate(pointTopLeft, pointTopRight, topLeft, topRight));
         break;
       case 7:
-        contour.add(interpolate(pointBottomLeft, pointTopLeft, bottomLeft, topLeft));
-        contour.add(interpolate(pointTopRight, pointTopLeft, topRight, topLeft));
+        contour.add(
+            interpolate(pointBottomLeft, pointTopLeft, bottomLeft, topLeft));
+        contour
+            .add(interpolate(pointTopRight, pointTopLeft, topRight, topLeft));
         break;
       case 8:
-        contour.add(interpolate(pointBottomLeft, pointTopLeft, bottomLeft, topLeft));
-        contour.add(interpolate(pointTopLeft, pointTopRight, topLeft, topRight));
+        contour.add(
+            interpolate(pointBottomLeft, pointTopLeft, bottomLeft, topLeft));
+        contour
+            .add(interpolate(pointTopLeft, pointTopRight, topLeft, topRight));
         break;
       case 9:
-        contour.add(interpolate(pointBottomLeft, pointBottomRight, bottomLeft, bottomRight));
-        contour.add(interpolate(pointTopLeft, pointTopRight, topLeft, topRight));
+        contour.add(interpolate(
+            pointBottomLeft, pointBottomRight, bottomLeft, bottomRight));
+        contour
+            .add(interpolate(pointTopLeft, pointTopRight, topLeft, topRight));
         break;
       case 10:
-        contour.add(interpolate(pointBottomLeft, pointTopLeft, bottomLeft, topLeft));
-        contour.add(interpolate(pointBottomRight, pointTopRight, bottomRight, topRight));
+        contour.add(
+            interpolate(pointBottomLeft, pointTopLeft, bottomLeft, topLeft));
+        contour.add(interpolate(
+            pointBottomRight, pointTopRight, bottomRight, topRight));
         break;
       case 11:
-        contour.add(interpolate(pointBottomRight, pointTopRight, bottomRight, topRight));
-        contour.add(interpolate(pointTopLeft, pointTopRight, topLeft, topRight));
+        contour.add(interpolate(
+            pointBottomRight, pointTopRight, bottomRight, topRight));
+        contour
+            .add(interpolate(pointTopLeft, pointTopRight, topLeft, topRight));
         break;
       case 12:
-        contour.add(interpolate(pointBottomLeft, pointTopLeft, bottomLeft, topLeft));
-        contour.add(interpolate(pointBottomRight, pointTopRight, bottomRight, topRight));
+        contour.add(
+            interpolate(pointBottomLeft, pointTopLeft, bottomLeft, topLeft));
+        contour.add(interpolate(
+            pointBottomRight, pointTopRight, bottomRight, topRight));
         break;
       case 13:
-        contour.add(interpolate(pointBottomLeft, pointBottomRight, bottomLeft, bottomRight));
-        contour.add(interpolate(pointBottomRight, pointTopRight, bottomRight, topRight));
+        contour.add(interpolate(
+            pointBottomLeft, pointBottomRight, bottomLeft, bottomRight));
+        contour.add(interpolate(
+            pointBottomRight, pointTopRight, bottomRight, topRight));
         break;
       case 14:
-        contour.add(interpolate(pointBottomLeft, pointBottomRight, bottomLeft, bottomRight));
-        contour.add(interpolate(pointBottomLeft, pointTopLeft, bottomLeft, topLeft));
+        contour.add(interpolate(
+            pointBottomLeft, pointBottomRight, bottomLeft, bottomRight));
+        contour.add(
+            interpolate(pointBottomLeft, pointTopLeft, bottomLeft, topLeft));
         break;
     }
 
@@ -207,14 +249,19 @@ class MarchingSquares {
 
   bool _close(Point<double> p1, Point<double> p2) {
     final delta = 0.01;
-    return p1 == p2 || ((p1.x - p2.x).abs() <= delta && (p1.y - p2.y).abs() <= delta);
+    return p1 == p2 ||
+        ((p1.x - p2.x).abs() <= delta && (p1.y - p2.y).abs() <= delta);
   }
 
-  List<Point<double>>? _findContour(Map<Point<double>, List<Point<double>>> endToContour, Point<double> end) =>
-      endToContour[end] ?? endToContour.entries.where((e) => _close(e.key, end)).firstOrNull?.value;
+  List<Point<double>>? _findContour(
+          Map<Point<double>, List<Point<double>>> endToContour,
+          Point<double> end) =>
+      endToContour[end] ??
+      endToContour.entries.where((e) => _close(e.key, end)).firstOrNull?.value;
 }
 
 extension _PointExtension on Point<double> {
   Point<double> round() => Point(x.roundToDouble(), y.roundToDouble());
-  Point<double> operator /(double denominator) => Point(x / denominator, y / denominator);
+  Point<double> operator /(double denominator) =>
+      Point(x / denominator, y / denominator);
 }

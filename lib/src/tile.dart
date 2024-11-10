@@ -24,7 +24,8 @@ class ElevationTile {
     return bounds;
   }
 
-  ElevationTile({required this.width, required this.height, required this.elevation});
+  ElevationTile(
+      {required this.width, required this.height, required this.elevation});
 
   Bounds _elevationBounds() {
     var bounds = (min: double.nan, max: double.nan);
@@ -148,7 +149,8 @@ class DemTile extends ElevationTile {
   factory DemTile.fromImage(img.Image image, DemEncoding encoding) {
     final width = image.width;
     final height = image.height;
-    double decodeMapbox(num r, num g, num b) => -10000 + (r * 256 * 256 + g * 256 + b) * 0.1;
+    double decodeMapbox(num r, num g, num b) =>
+        -10000 + (r * 256 * 256 + g * 256 + b) * 0.1;
     double decode(num r, num g, num b) => r * 256 + g + b / 256 - 32768;
     final decoder = (encoding == DemEncoding.mapbox) ? decodeMapbox : decode;
     Float32List data = Float32List(width * height);
@@ -164,4 +166,5 @@ class DemTile extends ElevationTile {
   }
 }
 
-bool _isValidElevation(double v) => v >= minValidElevation && v <= maxValidElevation;
+bool _isValidElevation(double v) =>
+    v >= minValidElevation && v <= maxValidElevation;

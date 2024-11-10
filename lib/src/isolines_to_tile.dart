@@ -6,7 +6,8 @@ import 'package:vector_tile/raw/raw_vector_tile.dart';
 
 import 'contour_options.dart';
 
-Uint8List isolinesToTile(Map<int, List<List<Point<double>>>> isolines, ContourOptions options) {
+Uint8List isolinesToTile(
+    Map<int, List<List<Point<double>>>> isolines, ContourOptions options) {
   final keys = <String>['ele', 'level'];
   final values = <VectorTile_Value>[];
   final eleKeyIndex = keys.indexOf('ele');
@@ -26,7 +27,12 @@ Uint8List isolinesToTile(Map<int, List<List<Point<double>>>> isolines, ContourOp
   }
   return createVectorTile(layers: [
     createVectorTileLayer(
-        name: options.contourLayer, extent: options.extent, version: 2, features: features, keys: keys, values: values)
+        name: options.contourLayer,
+        extent: options.extent,
+        version: 2,
+        features: features,
+        keys: keys,
+        values: values)
   ]).writeToBuffer();
 }
 
@@ -61,10 +67,13 @@ int _zigzag(int num) {
 
 int _valueIndex(List<VectorTile_Value> values, int value) {
   final int64 = Int64(value);
-  var valueIndex =
-      value >= 0 ? values.indexWhere((v) => v.intValue == int64) : values.indexWhere((v) => v.sintValue == int64);
+  var valueIndex = value >= 0
+      ? values.indexWhere((v) => v.intValue == int64)
+      : values.indexWhere((v) => v.sintValue == int64);
   if (valueIndex == -1) {
-    final v = value < 0 ? VectorTile_Value(sintValue: int64) : VectorTile_Value(intValue: int64);
+    final v = value < 0
+        ? VectorTile_Value(sintValue: int64)
+        : VectorTile_Value(intValue: int64);
     values.add(v);
     valueIndex = values.length - 1;
   }

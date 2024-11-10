@@ -11,43 +11,57 @@ import 'tile.dart';
 import 'tile_id.dart';
 
 Future<Uint8List> terrariumToContourLines(
-    {required TileId tile, required DemProvider demProvider, required ContourOptions options}) async {
-  var virtualTile = await _retrieveDemWithNeighbours(tile, options, demProvider);
-  virtualTile = virtualTile?.scale(options.multiplier).materialize(max(options.buffer, 1));
+    {required TileId tile,
+    required DemProvider demProvider,
+    required ContourOptions options}) async {
+  var virtualTile =
+      await _retrieveDemWithNeighbours(tile, options, demProvider);
+  virtualTile = virtualTile
+      ?.scale(options.multiplier)
+      .materialize(max(options.buffer, 1));
   return elevationTileToContourLines(tile: virtualTile, options: options);
 }
 
-Future<Uint8List> elevationTileToContourLines({required ElevationTile? tile, required ContourOptions options}) async {
+Future<Uint8List> elevationTileToContourLines(
+    {required ElevationTile? tile, required ContourOptions options}) async {
   if (tile == null) {
     return isolinesToTile({}, options);
   }
-  final algorithm = MarchingSquares(tile: tile, extent: options.extent, buffer: options.buffer);
+  final algorithm = MarchingSquares(
+      tile: tile, extent: options.extent, buffer: options.buffer);
   final isolines = algorithm.generateIsolines(options.minorLevel);
   return isolinesToTile(isolines, options);
 }
 
-Future<ElevationTile?> _retrieveDem(TileId tile, ContourOptions options, _FutureDemProvider provider) async {
+Future<ElevationTile?> _retrieveDem(
+    TileId tile, ContourOptions options, _FutureDemProvider provider) async {
   if (!tile.isValid()) {
     return null;
   }
   return await provider.fetch(tile, options);
 }
 
-Future<ElevationTile?> _retrieveDemWithNeighbours(TileId tile, ContourOptions options, DemProvider provider) async {
+Future<ElevationTile?> _retrieveDemWithNeighbours(
+    TileId tile, ContourOptions options, DemProvider provider) async {
   final tileProvider = _FutureDemProvider(provider);
-  final Future<ElevationTile?> center = _retrieveDem(tile, options, tileProvider);
-  final Future<ElevationTile?> leftCenter = _retrieveDem(tile.copyWith(x: tile.x - 1), options, tileProvider);
-  final Future<ElevationTile?> rightCenter = _retrieveDem(tile.copyWith(x: tile.x + 1), options, tileProvider);
-  final Future<ElevationTile?> topLeft =
-      _retrieveDem(tile.copyWith(x: tile.x - 1, y: tile.y - 1), options, tileProvider);
-  final Future<ElevationTile?> topCenter = _retrieveDem(tile.copyWith(y: tile.y - 1), options, tileProvider);
-  final Future<ElevationTile?> topRight =
-      _retrieveDem(tile.copyWith(x: tile.x + 1, y: tile.y - 1), options, tileProvider);
-  final Future<ElevationTile?> bottomLeft =
-      _retrieveDem(tile.copyWith(x: tile.x - 1, y: tile.y + 1), options, tileProvider);
-  final Future<ElevationTile?> bottomCenter = _retrieveDem(tile.copyWith(y: tile.y + 1), options, tileProvider);
-  final Future<ElevationTile?> bottomRight =
-      _retrieveDem(tile.copyWith(x: tile.x + 1, y: tile.y + 1), options, tileProvider);
+  final Future<ElevationTile?> center =
+      _retrieveDem(tile, options, tileProvider);
+  final Future<ElevationTile?> leftCenter =
+      _retrieveDem(tile.copyWith(x: tile.x - 1), options, tileProvider);
+  final Future<ElevationTile?> rightCenter =
+      _retrieveDem(tile.copyWith(x: tile.x + 1), options, tileProvider);
+  final Future<ElevationTile?> topLeft = _retrieveDem(
+      tile.copyWith(x: tile.x - 1, y: tile.y - 1), options, tileProvider);
+  final Future<ElevationTile?> topCenter =
+      _retrieveDem(tile.copyWith(y: tile.y - 1), options, tileProvider);
+  final Future<ElevationTile?> topRight = _retrieveDem(
+      tile.copyWith(x: tile.x + 1, y: tile.y - 1), options, tileProvider);
+  final Future<ElevationTile?> bottomLeft = _retrieveDem(
+      tile.copyWith(x: tile.x - 1, y: tile.y + 1), options, tileProvider);
+  final Future<ElevationTile?> bottomCenter =
+      _retrieveDem(tile.copyWith(y: tile.y + 1), options, tileProvider);
+  final Future<ElevationTile?> bottomRight = _retrieveDem(
+      tile.copyWith(x: tile.x + 1, y: tile.y + 1), options, tileProvider);
 
   final centerTile = await center;
   if (centerTile == null) {
@@ -83,7 +97,8 @@ class _FutureDemProvider {
     return future;
   }
 
-  void _retrieve(Completer<ElevationTile> completer, TileId tileId, ContourOptions options) async {
+  void _retrieve(Completer<ElevationTile> completer, TileId tileId,
+      ContourOptions options) async {
     try {
       final dem = await provider.provide(tile: tileId);
       final image = decodePng(dem);

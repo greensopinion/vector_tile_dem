@@ -41,7 +41,8 @@ Future fetchTestData(TileId tile) async {
 Future _fetchTerrariumTile(int z, int x, int y) async {
   final file = _terrariumFile(z, x, y);
   if (!(await file.exists())) {
-    final uri = Uri.parse('https://tiles.stadiamaps.com/data/terrarium/$z/$x/$y.png?api_key=$stadiaMapsApiKey');
+    final uri = Uri.parse(
+        'https://tiles.stadiamaps.com/data/terrarium/$z/$x/$y.png?api_key=$stadiaMapsApiKey');
     final bytes = await _get(uri);
     await file.writeAsBytes(bytes);
   }
@@ -54,10 +55,12 @@ Future<Uint8List> _get(Uri uri) async {
     if (response.statusCode == 200) {
       return response.bodyBytes;
     }
-    throw Exception('HTTP ${response.statusCode}: ${response.reasonPhrase}: ${response.body}');
+    throw Exception(
+        'HTTP ${response.statusCode}: ${response.reasonPhrase}: ${response.body}');
   } finally {
     client.close();
   }
 }
 
-File _terrariumFile(int z, int x, int y) => File('${_dataDir.path}/terrarium_${z}_${x}_$y.png');
+File _terrariumFile(int z, int x, int y) =>
+    File('${_dataDir.path}/terrarium_${z}_${x}_$y.png');

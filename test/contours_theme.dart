@@ -30,7 +30,7 @@ Map<String, dynamic> _themeJson() => {
         //   "minzoom": 12,
         //   "layout": {
         //     "symbol-placement": "line",
-        //     "text-field": "{ele}",
+        //     "text-field": "{ele} level={level}",
         //     "visibility": "visible",
         //     "text-font": ["Roboto Regular"],
         //     "text-size": {

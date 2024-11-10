@@ -34,7 +34,8 @@ void main() {
       expect(elevation, isA<int>());
       expect(level, isA<int>());
       expect(elevation % 20, 0, reason: 'elevation=$elevation');
-      expect(level, (elevation % 100 == 0) ? 1 : 0, reason: 'elevation=$elevation');
+      expect(level, (elevation % 100 == 0) ? 1 : 0,
+          reason: 'elevation=$elevation');
       if (level == 1) {
         ++majorLevels;
       } else {
@@ -58,7 +59,9 @@ void main() {
     test('vertical', () async {
       final range = (midpoint - 10, midpoint + 10);
       final tile = ElevationTile(
-          width: tileSize, height: tileSize, elevation: (x, y) => (x >= range.$1 && x <= range.$2) ? high : low);
+          width: tileSize,
+          height: tileSize,
+          elevation: (x, y) => (x >= range.$1 && x <= range.$2) ? high : low);
       final result = await _process('vertical', tile);
       _assertTile(result, (TileLayer layer) {
         expect(layer.features.length, 2);
@@ -66,18 +69,22 @@ void main() {
         expect(first.type, TileFeatureType.linestring);
         expect(first.hasPaths, true);
         expect(first.paths.length, 1);
-        expect(first.paths.first.bounds, Rect.fromLTRB(1887.0, -16.0, 1887.0, 4096.0));
+        expect(first.paths.first.bounds,
+            Rect.fromLTRB(1887.0, -16.0, 1887.0, 4096.0));
         final second = layer.features.last;
         expect(second.type, TileFeatureType.linestring);
         expect(second.hasPaths, true);
         expect(second.paths.length, 1);
-        expect(second.paths.first.bounds, Rect.fromLTRB(2209.0, -16.0, 2209.0, 4096.0));
+        expect(second.paths.first.bounds,
+            Rect.fromLTRB(2209.0, -16.0, 2209.0, 4096.0));
       });
     });
     test('horizontal', () async {
       final range = (midpoint - 10, midpoint + 10);
       final tile = ElevationTile(
-          width: tileSize, height: tileSize, elevation: (x, y) => (y >= range.$1 && y <= range.$2) ? high : low);
+          width: tileSize,
+          height: tileSize,
+          elevation: (x, y) => (y >= range.$1 && y <= range.$2) ? high : low);
       final result = await _process('horizontal', tile);
       _assertTile(result, (TileLayer layer) {
         expect(layer.features.length, 2);
@@ -85,12 +92,14 @@ void main() {
         expect(first.type, TileFeatureType.linestring);
         expect(first.hasPaths, true);
         expect(first.paths.length, 1);
-        expect(first.paths.first.bounds, Rect.fromLTRB(-16.0, 1887.0, 4096.0, 1887.0));
+        expect(first.paths.first.bounds,
+            Rect.fromLTRB(-16.0, 1887.0, 4096.0, 1887.0));
         final second = layer.features.last;
         expect(second.type, TileFeatureType.linestring);
         expect(second.hasPaths, true);
         expect(second.paths.length, 1);
-        expect(second.paths.first.bounds, Rect.fromLTRB(-16.0, 2209.0, 4096.0, 2209.0));
+        expect(second.paths.first.bounds,
+            Rect.fromLTRB(-16.0, 2209.0, 4096.0, 2209.0));
       });
     });
 
@@ -100,7 +109,10 @@ void main() {
         return y >= range.$1 && y <= range.$2;
       }
 
-      final tile = ElevationTile(width: tileSize, height: tileSize, elevation: (x, y) => (inBounds(x, y)) ? high : low);
+      final tile = ElevationTile(
+          width: tileSize,
+          height: tileSize,
+          elevation: (x, y) => (inBounds(x, y)) ? high : low);
       final result = await _process('diagonal-tl-br', tile);
       _assertTile(result, (TileLayer layer) {
         expect(layer.features.length, 2);
@@ -108,12 +120,14 @@ void main() {
         expect(first.type, TileFeatureType.linestring);
         expect(first.hasPaths, true);
         expect(first.paths.length, 1);
-        expect(first.paths.first.bounds, Rect.fromLTRB(145.0, -16.0, 4096.0, 3935.0));
+        expect(first.paths.first.bounds,
+            Rect.fromLTRB(145.0, -16.0, 4096.0, 3935.0));
         final second = layer.features.last;
         expect(second.type, TileFeatureType.linestring);
         expect(second.hasPaths, true);
         expect(second.paths.length, 1);
-        expect(second.paths.first.bounds, Rect.fromLTRB(-16.0, 145.0, 3935.0, 4096.0));
+        expect(second.paths.first.bounds,
+            Rect.fromLTRB(-16.0, 145.0, 3935.0, 4096.0));
       });
     });
 
@@ -124,7 +138,10 @@ void main() {
         return y >= range.$1 && y <= range.$2;
       }
 
-      final tile = ElevationTile(width: tileSize, height: tileSize, elevation: (x, y) => (inBounds(x, y)) ? high : low);
+      final tile = ElevationTile(
+          width: tileSize,
+          height: tileSize,
+          elevation: (x, y) => (inBounds(x, y)) ? high : low);
       final result = await _process('diagonal-tr-bl', tile);
       _assertTile(result, (TileLayer layer) {
         expect(layer.features.length, 2);
@@ -132,12 +149,14 @@ void main() {
         expect(first.type, TileFeatureType.linestring);
         expect(first.hasPaths, true);
         expect(first.paths.length, 1);
-        expect(first.paths.first.bounds, Rect.fromLTRB(-16.0, -16.0, 3951.0, 3951.0));
+        expect(first.paths.first.bounds,
+            Rect.fromLTRB(-16.0, -16.0, 3951.0, 3951.0));
         final second = layer.features.last;
         expect(second.type, TileFeatureType.linestring);
         expect(second.hasPaths, true);
         expect(second.paths.length, 1);
-        expect(second.paths.first.bounds, Rect.fromLTRB(161.0, 161.0, 4096.0, 4096.0));
+        expect(second.paths.first.bounds,
+            Rect.fromLTRB(161.0, 161.0, 4096.0, 4096.0));
       });
     });
 
@@ -150,7 +169,10 @@ void main() {
         return l <= r2;
       }
 
-      final tile = ElevationTile(width: tileSize, height: tileSize, elevation: (x, y) => (inBounds(x, y)) ? high : low);
+      final tile = ElevationTile(
+          width: tileSize,
+          height: tileSize,
+          elevation: (x, y) => (inBounds(x, y)) ? high : low);
       final result = await _process('circle-high', tile);
       _assertTile(result, (TileLayer layer) {
         expect(layer.features.length, 1);
@@ -158,7 +180,8 @@ void main() {
         expect(first.type, TileFeatureType.linestring);
         expect(first.hasPaths, true);
         expect(first.paths.length, 1);
-        expect(first.paths.first.bounds, Rect.fromLTRB(1647.0, 1647.0, 2449.0, 2449.0));
+        expect(first.paths.first.bounds,
+            Rect.fromLTRB(1647.0, 1647.0, 2449.0, 2449.0));
       });
     });
 
@@ -171,7 +194,10 @@ void main() {
         return l <= r2;
       }
 
-      final tile = ElevationTile(width: tileSize, height: tileSize, elevation: (x, y) => (inBounds(x, y)) ? low : high);
+      final tile = ElevationTile(
+          width: tileSize,
+          height: tileSize,
+          elevation: (x, y) => (inBounds(x, y)) ? low : high);
       final result = await _process('circle-low', tile);
       _assertTile(result, (TileLayer layer) {
         expect(layer.features.length, 1);
@@ -179,7 +205,8 @@ void main() {
         expect(first.type, TileFeatureType.linestring);
         expect(first.hasPaths, true);
         expect(first.paths.length, 1);
-        expect(first.paths.first.bounds, Rect.fromLTRB(1633.0, 1633.0, 2463.0, 2463.0));
+        expect(first.paths.first.bounds,
+            Rect.fromLTRB(1633.0, 1633.0, 2463.0, 2463.0));
       });
     });
   });
@@ -200,8 +227,11 @@ TileLayer _assertContourLayer(Tile tile) {
 
 Future<Tile> _processTerrariumTile(TileId tile) async {
   final buffer = await terrariumToContourLines(
-      tile: tile, demProvider: TestDemProvider(), options: ContourOptions(minorLevel: 20, majorLevel: 100));
-  final vectorFile = await writeOutput('tile-${tile.filenameSuffix}.pbf', buffer);
+      tile: tile,
+      demProvider: TestDemProvider(),
+      options: ContourOptions(minorLevel: 20, majorLevel: 100));
+  final vectorFile =
+      await writeOutput('tile-${tile.filenameSuffix}.pbf', buffer);
   print('created ${vectorFile.path}');
 
   await _createImage(tile.filenameSuffix, buffer);
@@ -210,7 +240,8 @@ Future<Tile> _processTerrariumTile(TileId tile) async {
 }
 
 Future<Tile> _process(String name, ElevationTile tile) async {
-  final buffer = await elevationTileToContourLines(tile: tile, options: ContourOptions(minorLevel: 20));
+  final buffer = await elevationTileToContourLines(
+      tile: tile, options: ContourOptions(minorLevel: 20));
   final vectorFile = await writeOutput('tile-$name.pbf', buffer);
   print('created ${vectorFile.path}');
 
@@ -223,15 +254,18 @@ Future _createImage(String name, Uint8List buffer) async {
   final vectorTile = _readTile(buffer);
   final renderer = ImageRenderer(theme: _theme, scale: 4);
 
-  final image =
-      await renderer.render(TileSource(tileset: Tileset({'contour': vectorTile})), zoomScaleFactor: 4, zoom: 12);
+  final image = await renderer.render(
+      TileSource(tileset: Tileset({'contour': vectorTile})),
+      zoomScaleFactor: 4,
+      zoom: 12);
   final imageBytes = await image.toPng();
   image.dispose();
   final imageFile = await writeOutput('tile-$name.png', imageBytes);
   print('created ${imageFile.path}');
 }
 
-Tile _readTile(Uint8List buffer) => TileFactory(_theme, Logger.console()).create(VectorTileReader().read(buffer));
+Tile _readTile(Uint8List buffer) => TileFactory(_theme, Logger.console())
+    .create(VectorTileReader().read(buffer));
 
 extension _TileIdExtension on TileId {
   String get filenameSuffix => '${z}_${x}_$y';

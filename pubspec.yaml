@@ -1,0 +1,22 @@
+name: vector_tile_dem
+description: Provides vector tiles with contour lines from a Digital Elevation Model (DEM)
+version: 0.0.1
+repository: https://github.com/greensopinion/vector_tile_dem
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: '>=3.2.0'
+
+dependencies:
+  vector_tile: ^2.0.0
+  image: ^4.2.0
+  fixnum: ^1.1.0
+
+
+dev_dependencies:
+  flutter:
+    sdk: flutter
+  lints: ^4.0.0
+  test: ^1.24.0
+  http: ^1.0.0
+  vector_tile_renderer: ^5.2.0
